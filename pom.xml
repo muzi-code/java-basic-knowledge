@@ -11,6 +11,7 @@
     <modules>
         <module>java-basic-knowledge-algorithm</module>
         <module>java-basic-knowledge-juc</module>
+        <module>java-basic-knowledge-design</module>
     </modules>
 
     <parent>
