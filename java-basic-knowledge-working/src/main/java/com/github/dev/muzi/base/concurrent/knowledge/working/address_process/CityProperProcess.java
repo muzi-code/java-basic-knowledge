@@ -1,12 +1,10 @@
 package com.github.dev.muzi.base.concurrent.knowledge.working.address_process;
 
 import com.github.dev.muzi.base.concurrent.knowledge.working.FileUtil;
-import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -16,11 +14,27 @@ import java.util.regex.Pattern;
  */
 public class CityProperProcess {
     /**
-     * 剔除省市的规则
+     * 剔除省市的规则 : 静态初始化块初始化。
      */
-    private static final String DEL_ADDRESS_REGX = "(?<province>北京|广东|山东|江苏|河南|上海|河北|浙江|陕西|湖南|" +
-            "重庆|福建|天津|云南|四川|广西|安徽|海南|江西|湖北|山西|辽宁|黑龙江|内蒙古|贵州|甘肃|" +
-            "青海|新疆|西藏|吉林|宁夏)(?<cityProperPrefix>[\\u4E00-\\u9FA5]{0,6}市|[\\u4E00-\\u9FA5]{0,6}区|[\\u4E00-\\u9FA5]{0,6}州)";
+    private static final String DEL_ADDRESS_REGX;
+
+    static {
+        String regxText = "(?<cityProperPrefix>%s)";
+        List<String> lines = FileUtil.loadList("/Users/lifuyi8/code/github/java-basic-knowledge/java-basic-knowledge-working/src/main/resources/conf/JD_city_proper_list.conf");
+        StringBuilder regxBuilder = new StringBuilder();
+        for (int i = 0; i < lines.size(); i++) {
+            String cp = lines.get(i).replaceAll("\\s+", "");
+            if (StringUtils.isNotBlank(cp)) {
+                regxBuilder.append(cp);
+                if (i < lines.size() - 1) {
+                    regxBuilder.append("|");
+                }
+            }
+        }
+        DEL_ADDRESS_REGX = String.format(regxText, regxBuilder.toString());
+        System.out.println(DEL_ADDRESS_REGX);
+    }
+
     private static final Pattern DEL_ADDRESS_REGX_PATTERN = Pattern.compile(DEL_ADDRESS_REGX);
 
     /**
@@ -37,12 +51,13 @@ public class CityProperProcess {
      * 剔除符号和一些提示
      */
     private static final String DEL_UNKNOW_TEXT_REGX = "([，\\/]+)|([提前联系]{4})|([=.*-]{2,20}[\\u4E00-\\u9FA5]{0,10})$";
+
     /**
      * 处理安维外呼的地址信息
      */
-    private static String addressProcess(String address) {
+    private static String addressProcess(String requestAddress) {
         // 去除标记提示
-        address = address.replaceAll(DEL_RANGE_TEXT_REGX, "");
+        String address = requestAddress.replaceAll(DEL_RANGE_TEXT_REGX, "");
 
         // 去除电话号码
         address = address.replaceAll(DEL_PHONE_NUMBER_REGX, "").trim();
@@ -71,32 +86,27 @@ public class CityProperProcess {
         }
 
         // 去除地址前两级
-        Map<String, String> map = addressResolution(address);
-        if (MapUtils.isNotEmpty(map)) {
-            String cityProperPrefix = map.get("cityProperPrefix");
-            String province = map.get("province");
-            if (cityProperPrefix != null && province != null) {
-                String prefix = province + cityProperPrefix;
-                address = address.replaceAll(".*?" + prefix, "");
-            }
+        String cityProperPrefix = addressResolution(address);
+        if (cityProperPrefix != null) {
+            address = address.replaceAll(".*?" + cityProperPrefix, "");
         }
+
         // 后处理规则字符串
         address = address.replaceAll(DEL_UNKNOW_TEXT_REGX, "");
+
+        if (StringUtils.isBlank(address)){
+            address = requestAddress;
+        }
         return address;
     }
 
-    private static Map<String, String> addressResolution(String address) {
+    private static String addressResolution(String address) {
         Matcher m = DEL_ADDRESS_REGX_PATTERN.matcher(address);
-        String province = null, cityProperPrefix = null, county = null, town = null, village = null;
-        Map<String, String> row = null;
+        String cityProperPrefix = null;
         while (m.find()) {
-            row = new LinkedHashMap<String, String>();
-            province = m.group("province");
-            row.put("province", province == null ? "" : province.trim());
             cityProperPrefix = m.group("cityProperPrefix");
-            row.put("cityProperPrefix", cityProperPrefix == null ? "" : cityProperPrefix.trim());
         }
-        return row;
+        return cityProperPrefix;
     }
 
     public static void main(String[] args) {
