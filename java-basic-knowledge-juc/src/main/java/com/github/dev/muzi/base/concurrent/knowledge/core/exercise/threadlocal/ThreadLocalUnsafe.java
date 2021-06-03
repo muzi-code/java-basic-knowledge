@@ -1,6 +1,5 @@
 package com.github.dev.muzi.base.concurrent.knowledge.core.exercise.threadlocal;
 
-import cn.letwecode.muzi.moonshine.concurrent.ThreadUtils;
 
 /**
  * create by muzi 2019-06-29
@@ -30,7 +29,6 @@ public class ThreadLocalUnsafe implements Runnable{
     public void run() {
         number.setCount(number.getCount() + 1);
         local.set(number); //
-        ThreadUtils.sleep(2);
         System.out.println(Thread.currentThread().getName() + "  " + local.get()/*.getCount()*/);
     }
 

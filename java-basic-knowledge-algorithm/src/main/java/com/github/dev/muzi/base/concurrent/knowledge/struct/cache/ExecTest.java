@@ -1,7 +1,6 @@
 package com.github.dev.muzi.base.concurrent.knowledge.struct.cache;
 
 import com.alibaba.fastjson.JSON;
-import com.github.dev.muzi.base.algorithm.knowledge.utils.BeanUtil;
 
 import java.util.Map;
 
@@ -14,7 +13,5 @@ public class ExecTest {
             rb.add("" + i, i);
         }
 
-        Map map = BeanUtil.objectToMap(rb);
-        System.out.println(JSON.toJSONString(map));
     }
 }

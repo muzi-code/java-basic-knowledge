@@ -24,17 +24,16 @@ public class MergeSort {
     }
 
     /**
-     * 归并排序
-     * 传入待排序数组，以及待排序的左边界和右边界
+     * 归并排序，传入待排序数组，以及待排序的左边界和右边界。
      */
     public static void mergeSort(int[] array, int left, int right) {
-        if (left == right) {  //如果数组左边界和右边界相同的话就不用继续递归归并了 并返回这个唯一的一个元素的数组
+        if (left == right) {
             return;
         }
-        int mid = (right + left) / 2;       //如果还可以二分归并那么算出中间值
-        mergeSort(array, left, mid);  //左的给左  右的给右  依次递归
+        int mid = (right + left) / 2;
+        mergeSort(array, left, mid);
         mergeSort(array, mid + 1, right);
-        leftMergeRight(array, left, mid, mid + 1, right); //合并俩数组的值
+        leftMergeRight(array, left, mid, mid + 1, right);
     }
 
     /**
