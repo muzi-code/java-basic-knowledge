@@ -15,6 +15,7 @@
         <module>java-basic-knowledge-redis</module>
         <module>java-basic-knowledge-working</module>
         <module>java-basic-knowledge-utils</module>
+        <module>java-basic-knowledge-jvm</module>
     </modules>
 
     <parent>
